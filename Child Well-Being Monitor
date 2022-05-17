@@ -1,0 +1,260 @@
+TASK 1
+T-SQL statements
+1. 
+/*measure the child reading and writing ability
+by region and type of residence*/
+select count(*) as 'total number of children',
+case a.typesite
+when 1 then 'urban'
+when 2 then 'rural'
+else 'unknown' end as 'residence',
+case a.region
+when 1 then 'Tigray'
+when 2 then 'Afar'
+when 3 then 'Amhara'
+when 4 then 'Oromiya'
+when 5 then 'Somali'
+when 6 then 'Benshangul Gumz'
+when 7 then 'SNNP'
+when 8 then 'Gambela'
+when 13 then 'Harari'
+when 14 then 'Addis Ababa City Administration'
+when 15 then 'Dire Dawa City Administration'
+when 24 then 'Others'
+when 23 then 'Telangana'
+when 77 then 'Not known'
+when 22 then 'Rayalaseema'
+when 21 then 'Coastal Andhra'
+when 32 then 'Sierra'
+when 33 then 'Selva'
+when 88 then 'N/A'
+when 31 then 'Costa'
+when 51 then 'Northern Uplands'
+when 52 then 'Red River Delta'
+when 53 then 'Phu Yen'
+when 54 then 'Da Nang'
+when 55 then  'Highlands'
+when 56 then 'South Eastern'
+when 57 then 'Mekong River Delta'
+when 58 then 'Other'
+else null
+end as 'Region',
+case b.levlread
+when 1 then 'cannot read anything'
+when 2 then 'read letters'
+when 3 then 'reads words'
+when 4 then 'reads sentences'
+else 'unknown' end as 'child can read',
+case b.levlwrit
+when 1.0 then 'cannot write'
+when 2.0 then 'yes with difficulty or errors'
+when 3.0 then 'yes without difficulty or errors'
+else 'unknown' end as 'child can write'
+from dbo.Child_Id a join dbo.Child_read_write b with (updlock)
+on a.childid = b.childid
+group by a.typesite, a.region, b.levlwrit, b.levlread
+
+2.
+/*measures the child food credit and food security for each region and each type of residence*/
+select count(*) as 'total children',
+case a.typesite
+when 1 then 'urban'
+when 2 then 'rural'
+else 'unknown' end as 'residence',
+case a.region
+when 1 then 'Tigray'
+when 2 then 'Afar'
+when 3 then 'Amhara'
+when 4 then 'Oromiya'
+when 5 then 'Somali'
+when 6 then 'Benshangul Gumz'
+when 7 then 'SNNP'
+when 8 then 'Gambela'
+when 13 then 'Harari'
+when 14 then 'Addis Ababa City Administration'
+when 15 then 'Dire Dawa City Administration'
+when 24 then 'Others'
+when 23 then 'Telangana'
+when 77 then 'Not known'
+when 22 then 'Rayalaseema'
+when 21 then 'Coastal Andhra'
+when 32 then 'Sierra'
+when 33 then 'Selva'
+when 88 then 'N/A'
+when 31 then 'Costa'
+when 51 then 'Northern Uplands'
+when 52 then 'Red River Delta'
+when 53 then 'Phu Yen'
+when 54 then 'Da Nang'
+when 55 then  'Highlands'
+when 56 then 'South Eastern'
+when 57 then 'Mekong River Delta'
+when 58 then 'Other'
+else null
+end as 'Region',
+case b.credit
+when  0 then 'no'
+when 1 then 'yes'
+else null
+end as 'food credit',
+case b.foodsec
+when  1 then 'we always eat enough of what we want'
+when  2 then 'we eat enough but not always what we would like'
+when  3 then 'we sometimes do not eat enough'
+when  4 then 'we frequently do not eat enough'
+else null
+end as 'Food security'
+from dbo.Child_Id a 
+join dbo.Household_Credit_and_Food_Security b with (updlock)
+on a.childid = b.childid 
+where b.foodsec is not null and b.credit is not null
+group by a.typesite, a.region, b.foodsec, b.credit
+
+3.
+/*measures if they own land and house at round 5 of the survey*/
+select count(*) as 'total number of children',
+case a.typesite
+when 1 then 'urban'
+when 2 then 'rural'
+else 'unknown' end as 'residence',
+case a.region
+when 1 then 'Tigray'
+when 2 then 'Afar'
+when 3 then 'Amhara'
+when 4 then 'Oromiya'
+when 5 then 'Somali'
+when 6 then 'Benshangul Gumz'
+when 7 then 'SNNP'
+when 8 then 'Gambela'
+when 13 then 'Harari'
+when 14 then 'Addis Ababa City Administration'
+when 15 then 'Dire Dawa City Administration'
+when 24 then 'Others'
+when 23 then 'Telangana'
+when 77 then 'Not known'
+when 22 then 'Rayalaseema'
+when 21 then 'Coastal Andhra'
+when  32 then 'Sierra'
+when 33 then 'Selva'
+when 88 then 'N/A'
+when 31 then 'Costa'
+when 51 then 'Northern Uplands'
+when 52 then 'Red River Delta'
+when 53 then 'Phu Yen'
+when  54 then 'Da Nang'
+when 55 then  'Highlands'
+when 56 then 'South Eastern'
+when 57 then 'Mekong River Delta'
+when 58 then 'Other'
+else null
+end as 'Region',
+case b.ownlandhse
+when 0 then 'No'
+else 'Yes' end as 'own Land',
+case b.ownhouse
+when 0 then 'No'
+else 'yes' end as 'own house'
+from dbo.Child_Id a 
+join dbo.Household_Property_Ownership b with (updlock)
+on a.childid = b.childid
+where b.ownlandhse is not null and b.ownhouse is not null and b.Roundid = 5
+group by a.typesite, a.region, b.ownlandhse, b.ownhouse
+
+4.
+/*counts the total number of residents with sanitation in the urban residence for vietnam*/
+select count(*) as 'total count of residents',
+case toiletq_new
+when 0.0 then 'no access to sanitation'
+when 1.0 then 'access to sanitation'
+else 'unknown'
+end as 'Sanitation for Urban residence'
+from dbo.Vietnam with (updlock)
+where typesite = 1.0 
+group by toiletq_new
+
+5.
+/*count the total number of residence with sanitation in the rural residence in vietnam*/
+select count(*) as 'total count of residents',
+case toiletq_new
+when 0 then 'no access to sanitation'
+when 1 then 'access to sanitation'
+else 'unknown'
+end as 'Sanitation for Rural residence'
+from dbo.Vietnam with (updlock)
+where typesite = 2.0 
+group by toiletq_new
+
+EXTRA FEATURES
+STORED PROCEDURE
+/* creates a stored procedure such that it identifies
+only the younger cohort, and female gender if the stored procedure is executed*/
+create procedure Identification_location
+as
+select childid,
+case yc
+when 1 then 'younger cohort'
+when 0 then 'older cohort'
+end as 'cohort category',
+case chsex
+when 1 then 'male'
+when 2 then 'female'
+end as 'gender',
+case region
+when 1 then 'Tigray'
+when 2 then 'Afar'
+when 3 then 'Amhara'
+when 4 then 'Oromiya'
+when 5 then 'Somali'
+when 6 then 'Benshagul Gumez'
+when 7 then 'SNNP'
+when 12 then 'Gambela'
+when 13 then 'Harari'
+when 14 then 'Addis ababa city administration'
+when 15 then 'Diwa Dawa city'
+else 'unknown region of residence'
+end as 'Region of Residence'
+from dbo.ethiopia with (updlock)
+where convert(varchar(50), yc) = 1 and convert(varchar(50), chsex)=2
+
+VIEWS
+/* creates a view of children identification and location variables with child characteristics from ethopia table*/
+create view dbo.child_identification_in_ethopia
+as(
+select childid,
+case yc
+when 1.0 then 'younger cohort'
+when 0.0 then 'older cohort'
+end as 'cohort category',
+case chsex
+when 1.0 then 'male'
+when 2.0 then 'female'
+end as 'gender',
+case region
+when 1.0 then 'Tigray'
+when 2.0 then ' Afar'
+when 3.0 then 'Amhara'
+when 4.0 then 'Oromiya'
+when 5.0 then 'Somali'
+when 6.0 then 'Benshangul Gumz'
+when 7.0 then 'SNNP'
+when 12.0 then 'Gambela'
+when 13.0 then 'Harari'
+when 14.0 then 'Addis Ababa City Administration'
+when 15.0 then 'Dire Dawa City Administration'
+end as 'Region',
+case typesite
+when 1.0 then 'urban'
+when 2.0 then 'Rural'
+else 'Unknown'
+end as 'Respondent Residence',
+case birth
+when 0.0 then 'No'
+when 1.0 then 'Yes'
+else 'no response'
+end as 'child has a son or daughter',
+case marrcohab
+when 0.0 then 'No'
+when 1.0 then 'Yes'
+else 'no response'
+end as 'child has been married'
+from dbo.ethiopia)
